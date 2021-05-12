@@ -50,34 +50,41 @@ func NewEventLogger(url, src string) EventLogger {
 }
 
 func (e eventLogger) Error(msg string) {
-	e.writeEventLog(&logEntry{
+	err := e.writeEventLog(&logEntry{
 		Source:  e.Source,
 		Type:    "Error",
 		Message: msg,
 	})
+	if err != nil {
+		fmt.Println("Error while logging Event", err.Error())
+	}
 }
 
 func (e eventLogger) Info(msg string) {
-	e.writeEventLog(&logEntry{
+	err := e.writeEventLog(&logEntry{
 		Source:  e.Source,
 		Type:    "Info",
 		Message: msg,
 	})
+	if err != nil {
+		fmt.Println("Error while logging Event", err.Error())
+	}
 }
 
 func (e eventLogger) Warn(msg string) {
-	e.writeEventLog(&logEntry{
+	err := e.writeEventLog(&logEntry{
 		Source:  e.Source,
 		Type:    "Warn",
 		Message: msg,
 	})
+	if err != nil {
+		fmt.Println("Error while logging Event", err.Error())
+	}
 }
 
 func (e eventLogger) writeEventLog(log *logEntry) error {
 
 	b, err := json.Marshal(log)
-
-	fmt.Println(string(b))
 
 	if err != nil {
 		return err
