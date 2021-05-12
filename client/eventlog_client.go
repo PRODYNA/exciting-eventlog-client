@@ -9,40 +9,71 @@ import (
 	"time"
 )
 
-type LogEntry struct {
-	Timestamp string `json:"timestamp"`
-	Source    string    `json:"source"`
-	Type      string    `json:"type"`
-	Message   string    `json:"message"`
-	Status    string    `json:"status"`
+type logEntry struct {
+	Source  string `json:"source"`
+	Type    string `json:"type"`
+	Message string `json:"message"`
 }
 
-
-func NewLogEntry(src,typ, msg, status string) *LogEntry {
-	return &LogEntry{
-		Timestamp: time.Now().Format("2006-01-02T15:04:05Z"),
-		Source:    src,
-		Type:      typ,
-		Message:   msg,
-		Status:    status,
-	}
+type EventLogger interface {
+	Error(message string)
+	Info(message string)
+	Warn(message string)
 }
 
-type EventLogger struct {
+type eventLogger struct {
 	Url    string
+	Source string
 	client http.Client
 }
 
-func NewEventLogger(url string) *EventLogger {
-	return &EventLogger{
-		Url: url,
+type nopLogger struct {
+
+}
+
+func (n nopLogger) Error(msg string) {}
+func (n nopLogger) Info(msg string) {}
+func (n nopLogger) Warn(msg string) {}
+
+func NewNopLogger() EventLogger {
+	return &nopLogger{}
+}
+
+func NewEventLogger(url, src string) EventLogger {
+	return &eventLogger{
+		Url:    url,
+		Source: src,
 		client: http.Client{
 			Timeout: 10 * time.Second,
 		},
 	}
 }
 
-func (e EventLogger) WriteEventLog(log *LogEntry) error {
+func (e eventLogger) Error(msg string) {
+	e.writeEventLog(&logEntry{
+		Source:  e.Source,
+		Type:    "Error",
+		Message: msg,
+	})
+}
+
+func (e eventLogger) Info(msg string) {
+	e.writeEventLog(&logEntry{
+		Source:  e.Source,
+		Type:    "Info",
+		Message: msg,
+	})
+}
+
+func (e eventLogger) Warn(msg string) {
+	e.writeEventLog(&logEntry{
+		Source:  e.Source,
+		Type:    "Warn",
+		Message: msg,
+	})
+}
+
+func (e eventLogger) writeEventLog(log *logEntry) error {
 
 	b, err := json.Marshal(log)
 
