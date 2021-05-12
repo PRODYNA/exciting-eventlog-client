@@ -4,7 +4,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
-	"time"
 )
 
 
@@ -21,17 +20,11 @@ func (m Mock) RoundTrip(*http.Request) (*http.Response, error) {
 
 func TestLog(t *testing.T) {
 
-	l := NewEventLogger("http://anyhost:8080")
+	l := NewEventLogger("http://localhost:8080/eventlog")
 	l.client = http.Client{
 		Transport: Mock{},
 	}
-	entry := LogEntry{
-		Timestamp: time.Now(),
-		Source:    "source",
-		Type:      "type",
-		Message:   "message",
-		Status:    "status",
-	}
+	entry := NewLogEntry("unittest","log","really passed","201")
 
 	err := l.WriteEventLog(entry)
 

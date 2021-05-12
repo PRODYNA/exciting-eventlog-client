@@ -4,16 +4,28 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 )
 
 type LogEntry struct {
-	Timestamp time.Time `json:"timestamp"`
+	Timestamp string `json:"timestamp"`
 	Source    string    `json:"source"`
 	Type      string    `json:"type"`
 	Message   string    `json:"message"`
 	Status    string    `json:"status"`
+}
+
+
+func NewLogEntry(src,typ, msg, status string) *LogEntry {
+	return &LogEntry{
+		Timestamp: time.Now().Format("2006-01-02T15:04:05Z"),
+		Source:    src,
+		Type:      typ,
+		Message:   msg,
+		Status:    status,
+	}
 }
 
 type EventLogger struct {
@@ -30,9 +42,11 @@ func NewEventLogger(url string) *EventLogger {
 	}
 }
 
-func (e EventLogger) WriteEventLog(log LogEntry) error {
+func (e EventLogger) WriteEventLog(log *LogEntry) error {
 
 	b, err := json.Marshal(log)
+
+	fmt.Println(string(b))
 
 	if err != nil {
 		return err
