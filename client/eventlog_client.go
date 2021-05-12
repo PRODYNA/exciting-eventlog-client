@@ -90,7 +90,7 @@ func (e eventLogger) writeEventLog(log *logEntry) error {
 		return err
 	}
 
-	r, err := http.NewRequest("POST", e.Url, bytes.NewReader(b))
+	r, err := http.NewRequest("POST", "http://" + e.Url, bytes.NewReader(b))
 
 	if err != nil {
 		return err
